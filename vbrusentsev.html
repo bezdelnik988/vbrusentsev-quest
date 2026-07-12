@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>VBrusentsev | Survival Quest</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&family=Cinzel:wght@400;500;600;700;800;900&display=swap');
+
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #12121a;
+            --bg-card: #1a1a24;
+            --bg-input: #0f0f18;
+            --border: #252530;
+            --border-active: #3a3a48;
+            --text-primary: #e8e8f0;
+            --text-secondary: #9898a8;
+            --text-muted: #585868;
+            --accent: #c9a050;
+            --accent-glow: #e0c070;
+            --accent-bright: #f0d080;
+            --danger: #6b2a2a;
+            --danger-bright: #b04040;
+            --success: #3a6b3a;
+            --font-main: 'Inter', system-ui, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            --font-display: 'Cinzel', serif;
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 16px;
+            --shadow-sm: 0 2px 8px rgba(0,0,0,0.5);
+            --shadow-md: 0 4px 20px rgba(0,0,0,0.6);
+            --shadow-gold: 0 0 30px rgba(201,160,80,0.3);
+            --transition: 0.25s cubic-bezier(0.4,0,0.2,1);
+            --talent-study: #5b8cb8;
+            --talent-sport: #6b9b5b;
+            --talent-health: #c95b5b;
+            --talent-finance: #c9a050;
+            --talent-discipline: #8b6bb8;
+        }
+
+        [data-theme="light"] {
+            --bg-primary: #f0ede5;
+            --bg-secondary: #e8e4db;
+            --bg-card: #f5f2ea;
+            --bg-input: #ebe7de;
+            --border: #d5cfc4;
+            --border-active: #b5afa4;
+            --text-primary: #2a2520;
+            --text-secondary: #5a5550;
+            --text-muted: #8a8580;
+        }
+
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: var(--font-main);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            padding: env(safe-area-inset-top) 0.5rem env(safe-area-inset-bottom) 0.5rem;
+            line-height: 1.4;
+            -webkit-font-smoothing: antialiased;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+        .app-container { width:100%; max-width:1400px; display:flex; flex-direction:column; gap:0.6rem; }
+
+        ::-webkit-scrollbar { width:4px; height:4px; }
+        ::-webkit-scrollbar-track { background:transparent; }
+        ::-webkit-scrollbar-thumb { background:var(--border-active); border-radius:2px; }
+
+        .header {
+            display:flex; align-items:center; justify-content:space-between; gap:0.8rem; flex-wrap:wrap;
+            background:var(--bg-secondary); border:1px solid var(--border);
+            border-radius:var(--radius-lg); padding:0.6rem 1rem; box-shadow:var(--shadow-sm);
+        }
+        .header-left { display:flex; align-items:center; gap:0.5rem; }
+        .header-logo { font-size:1.6rem; }
+        .header-title { font-family:var(--font-display); font-size:1rem; font-weight:700; letter-spacing:0.04em; color:var(--accent); }
+        .header-controls { display:flex; align-items:center; gap:0.4rem; flex-wrap:wrap; }
+        .hp-module {
+            display:flex; align-items:center; gap:0.4rem; background:var(--bg-card);
+            border:1px solid var(--border); border-radius:var(--radius-md); padding:0.3rem 0.6rem; min-width:180px;
+        }
+        .hp-bar-outer { flex:1; height:6px; background:var(--bg-input); border-radius:3px; overflow:hidden; }
+        .hp-bar-inner {
+            height:100%; background:linear-gradient(90deg,#d04040,#e08040,#f0c040);
+            border-radius:3px; transition:width 0.5s ease;
+        }
+        .hp-bar-inner.danger { background:linear-gradient(90deg,#8b2020,#c03030); }
+        .hp-value { font-family:var(--font-mono); font-size:0.7rem; font-weight:600; white-space:nowrap; }
+        .badge {
+            font-size:0.65rem; padding:0.2rem 0.5rem; border-radius:var(--radius-sm);
+            font-weight:500; white-space:nowrap;
+        }
+        .badge-accent { background:rgba(201,160,80,0.12); border:1px solid rgba(201,160,80,0.3); color:var(--accent); }
+        .badge-danger { background:rgba(200,60,60,0.12); border:1px solid rgba(200,60,60,0.3); color:var(--danger-bright); }
+        .btn {
+            padding:0.4rem 0.8rem; font-size:0.7rem; font-weight:500;
+            border:1px solid var(--border-active); background:var(--bg-card);
+            color:var(--text-primary); border-radius:var(--radius-sm); cursor:pointer;
+            transition:var(--transition); font-family:var(--font-main); white-space:nowrap;
+        }
+        .btn:hover { border-color:var(--accent); background:#252530; }
+        .btn-accent { background:var(--accent); color:#0a0a0f; border-color:var(--accent); font-weight:600; }
+        .btn-accent:hover { background:var(--accent-glow); }
+        .btn-sm { padding:0.25rem 0.5rem; font-size:0.65rem; }
+        .btn-icon { width:30px; height:30px; padding:0; display:flex; align-items:center; justify-content:center; font-size:0.9rem; border-radius:50%; }
+
+        .main-grid { display:grid; grid-template-columns:1fr 1fr; gap:0.8rem; }
+        @media (max-width:900px) { .main-grid { grid-template-columns:1fr; } .header { flex-direction:column; align-items:stretch; } }
+        .panel {
+            background:var(--bg-secondary); border:1px solid var(--border);
+            border-radius:var(--radius-lg); padding:1rem; display:flex;
+            flex-direction:column; gap:0.6rem; box-shadow:var(--shadow-sm);
+        }
+        .panel-header { display:flex; align-items:center; justify-content:space-between; gap:0.4rem; flex-wrap:wrap; }
+        .panel-title { font-size:0.7rem; text-transform:uppercase; letter-spacing:0.08em; font-weight:700; color:var(--text-secondary); }
+        .panel-counter { font-family:var(--font-mono); font-size:0.65rem; color:var(--text-muted); background:var(--bg-card); padding:0.15rem 0.4rem; border-radius:var(--radius-sm); }
+        .full-width { grid-column:1 / -1; }
+
+        .tab-row { display:flex; gap:0.15rem; background:var(--bg-card); border-radius:var(--radius-sm); padding:2px; flex-wrap:wrap; }
+        .tab-btn {
+            flex:1; min-width:fit-content; padding:0.3rem 0.5rem; font-size:0.65rem; font-weight:500;
+            background:transparent; border:none; color:var(--text-muted); cursor:pointer;
+            border-radius:3px; transition:var(--transition); white-space:nowrap; font-family:var(--font-main);
+        }
+        .tab-btn.active { background:var(--bg-secondary); color:var(--text-primary); font-weight:600; }
+
+        .goal-input-row { display:flex; gap:0.3rem; flex-wrap:wrap; }
+        .goal-input-row input {
+            flex:1; min-width:120px; background:var(--bg-input); border:1px solid var(--border);
+            color:var(--text-primary); padding:0.4rem 0.6rem; border-radius:var(--radius-sm);
+            font-family:var(--font-main); font-size:0.8rem; outline:none;
+        }
+        .goal-input-row input:focus { border-color:var(--accent); }
+        .goal-input-row select {
+            background:var(--bg-input); border:1px solid var(--border); color:var(--text-primary);
+            padding:0.4rem; border-radius:var(--radius-sm); font-family:var(--font-main);
+            font-size:0.75rem; cursor:pointer; outline:none;
+        }
+        .goal-list { display:flex; flex-direction:column; gap:0.3rem; max-height:280px; overflow-y:auto; padding-right:3px; }
+        .goal-item {
+            display:flex; align-items:center; gap:0.4rem; padding:0.4rem 0.5rem;
+            background:var(--bg-card); border:1px solid var(--border);
+            border-radius:var(--radius-sm); font-size:0.75rem; transition:var(--transition);
+        }
+        .goal-item.completed { opacity:0.5; }
+        .goal-item.completed .goal-text { text-decoration:line-through; }
+        .goal-checkbox {
+            width:16px; height:16px; border:2px solid var(--border-active);
+            border-radius:3px; cursor:pointer; flex-shrink:0;
+            display:flex; align-items:center; justify-content:center; transition:var(--transition);
+        }
+        .goal-checkbox.checked { background:var(--accent); border-color:var(--accent); }
+        .goal-checkbox.checked::after { content:'✓'; font-size:0.6rem; font-weight:700; color:#000; }
+        .goal-content { flex:1; min-width:0; }
+        .goal-text { word-break:break-word; }
+        .goal-meta { display:flex; gap:0.25rem; flex-wrap:wrap; margin-top:1px; align-items:center; }
+        .goal-tag { font-size:0.55rem; padding:0.08rem 0.3rem; border-radius:2px; font-weight:500; letter-spacing:0.03em; border:1px solid var(--border); }
+        .goal-tag.long-term { border-color:#5a6b8a; color:#8a9bb5; }
+        .goal-tag.mid-term { border-color:#6b8a5a; color:#8ab57a; }
+        .goal-tag.daily { border-color:#8a7a5a; color:#b5a070; }
+        .goal-tag.recurring { border-color:#7a5a8a; color:#a080b5; }
+        .goal-talent-tag { font-size:0.5rem; padding:0.08rem 0.3rem; border-radius:2px; font-weight:500; cursor:pointer; }
+        .goal-talent-tag.study { background:rgba(91,140,184,0.2); color:var(--talent-study); border:1px solid rgba(91,140,184,0.4); }
+        .goal-talent-tag.sport { background:rgba(107,155,91,0.2); color:var(--talent-sport); border:1px solid rgba(107,155,91,0.4); }
+        .goal-talent-tag.health { background:rgba(201,91,91,0.2); color:var(--talent-health); border:1px solid rgba(201,91,91,0.4); }
+        .goal-talent-tag.finance { background:rgba(201,160,80,0.2); color:var(--talent-finance); border:1px solid rgba(201,160,80,0.4); }
+        .goal-talent-tag.discipline { background:rgba(139,107,184,0.2); color:var(--talent-discipline); border:1px solid rgba(139,107,184,0.4); }
+        .goal-actions { display:flex; gap:0.15rem; }
+        .goal-btn { background:transparent; border:1px solid transparent; color:var(--text-muted); cursor:pointer; padding:0.1rem 0.3rem; border-radius:3px; font-size:0.65rem; transition:var(--transition); }
+        .goal-btn:hover { border-color:var(--border-active); color:var(--text-primary); }
+        .goal-btn.delete:hover { border-color:var(--danger-bright); color:var(--danger-bright); }
+        .edit-inline { display:flex; gap:0.25rem; flex:1; }
+        .edit-inline input { flex:1; background:var(--bg-input); border:1px solid var(--accent); color:var(--text-primary); padding:0.25rem 0.4rem; border-radius:3px; font-size:0.7rem; outline:none; }
+
+        .lootbox-area { display:flex; align-items:center; gap:0.6rem; padding:0.6rem; background:var(--bg-card); border-radius:var(--radius-md); border:1px solid var(--border); }
+        .lootbox-icon-wrapper { cursor:pointer; font-size:2.2rem; transition:transform 0.15s; filter:drop-shadow(0 0 12px rgba(201,160,80,0.5)); user-select:none; }
+        .lootbox-icon-wrapper:active { transform:scale(0.85); }
+        .cards-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(85px,1fr)); gap:0.35rem; max-height:280px; overflow-y:auto; padding-right:3px; }
+        .card-mini {
+            background:var(--bg-card); border:2px solid var(--border); border-radius:var(--radius-md);
+            padding:0.4rem; text-align:center; cursor:pointer; transition:var(--transition);
+            position:relative; font-size:0.6rem;
+        }
+        .card-mini:hover { transform:translateY(-2px); box-shadow:var(--shadow-md); }
+        .card-mini.active { border-color:var(--accent); box-shadow:0 0 15px rgba(201,160,80,0.3); }
+        .card-mini.rarity-common { border-color:#b0b0b8; background:linear-gradient(180deg,#1a1a24 0%,#202028 100%); }
+        .card-mini.rarity-rare { border-color:#c89050; background:linear-gradient(180deg,#1a1a24 0%,#221d15 100%); }
+        .card-mini.rarity-epic { border-color:#9b40d0; background:linear-gradient(180deg,#1a1a24 0%,#201a28 100%); box-shadow:0 0 12px rgba(155,64,208,0.2); }
+        .card-mini.rarity-legendary {
+            border-color:#e0b030; background:linear-gradient(180deg,#1a1a24 0%,#221d10 100%);
+            clip-path:polygon(10% 0%,90% 0%,100% 20%,100% 80%,90% 100%,10% 100%,0% 80%,0% 20%);
+            box-shadow:0 0 20px rgba(224,176,48,0.3);
+        }
+        .card-mini.rarity-champion {
+            border:2px solid transparent;
+            background:linear-gradient(180deg,#1a1028 0%,#0a1020 100%);
+            border-image:linear-gradient(135deg,#ff4080,#ff8000,#ffd040,#40ff80,#4080ff,#ff4080) 1;
+            clip-path:polygon(30% 0%,70% 0%,100% 30%,100% 70%,70% 100%,30% 100%,0% 70%,0% 30%);
+            box-shadow:0 0 30px rgba(255,64,128,0.4),0 0 60px rgba(64,128,255,0.2);
+            animation:championGlow 3s ease-in-out infinite;
+        }
+        @keyframes championGlow {
+            0%,100% { box-shadow:0 0 30px rgba(255,64,128,0.4),0 0 60px rgba(64,128,255,0.2); }
+            50% { box-shadow:0 0 50px rgba(255,128,64,0.6),0 0 80px rgba(128,64,255,0.4); }
+        }
+        .card-mini .card-emoji { font-size:1.3rem; }
+        .card-mini .card-name { font-weight:600; margin-top:0.05rem; font-size:0.58rem; }
+        .card-mini .card-level { font-size:0.5rem; color:var(--accent); font-weight:600; }
+        .card-filter-row { display:flex; gap:0.25rem; flex-wrap:wrap; align-items:center; }
+        .card-filter-row input { flex:1; min-width:80px; background:var(--bg-input); border:1px solid var(--border); color:var(--text-primary); padding:0.3rem 0.5rem; border-radius:var(--radius-sm); font-size:0.7rem; outline:none; }
+        .card-filter-row select { background:var(--bg-input); border:1px solid var(--border); color:var(--text-primary); padding:0.3rem; border-radius:var(--radius-sm); font-size:0.65rem; cursor:pointer; }
+
+        .talent-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:0.6rem; }
+        .talent-tree { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-md); padding:0.6rem; display:flex; flex-direction:column; gap:0.3rem; }
+        .talent-tree-header { display:flex; align-items:center; gap:0.3rem; font-weight:600; font-size:0.7rem; }
+        .talent-level { font-family:var(--font-mono); font-size:0.6rem; color:var(--text-muted); margin-left:auto; }
+        .talent-xp-bar { height:3px; background:var(--bg-input); border-radius:2px; overflow:hidden; }
+        .talent-xp-fill { height:100%; border-radius:2px; transition:width 0.5s ease; }
+        .talent-nodes { display:flex; flex-direction:column; gap:0.2rem; }
+        .talent-node { display:flex; align-items:center; gap:0.3rem; padding:0.25rem 0.4rem; border-radius:var(--radius-sm); background:var(--bg-input); border:1px solid transparent; font-size:0.6rem; transition:var(--transition); }
+        .talent-node.unlocked { border-color:var(--border-active); }
+        .talent-node.locked { opacity:0.3; filter:grayscale(0.5); }
+        .talent-node.current { border-color:var(--accent); box-shadow:0 0 8px rgba(201,160,80,0.3); animation:pulseNode 2s ease-in-out infinite; }
+        @keyframes pulseNode { 0%,100%{ box-shadow:0 0 8px rgba(201,160,80,0.3); } 50%{ box-shadow:0 0 18px rgba(201,160,80,0.6); } }
+        .talent-node-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+
+        .achievements-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:0.4rem; }
+        .achievement-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-md); padding:0.5rem; font-size:0.65rem; display:flex; align-items:center; gap:0.4rem; transition:var(--transition); }
+        .achievement-card.earned { border-color:var(--accent); background:rgba(201,160,80,0.05); }
+        .achievement-card.locked { opacity:0.4; }
+        .achievement-icon { font-size:1.2rem; flex-shrink:0; }
+
+        .rating-table { width:100%; border-collapse:collapse; font-size:0.7rem; }
+        .rating-table th { text-align:left; padding:0.3rem 0.5rem; color:var(--text-muted); font-weight:500; text-transform:uppercase; font-size:0.55rem; letter-spacing:0.06em; border-bottom:1px solid var(--border); }
+        .rating-table td { padding:0.25rem 0.5rem; border-bottom:1px solid var(--border); }
+        .rating-table tr.you { background:rgba(201,160,80,0.08); font-weight:600; }
+
+        .mindmap-container { position:relative; width:100%; height:450px; background:var(--bg-input); border:1px solid var(--border); border-radius:var(--radius-lg); overflow:hidden; cursor:grab; }
+        .mindmap-container:active { cursor:grabbing; }
+        .mindmap-canvas { position:absolute; inset:0; }
+        .mindmap-toolbar { position:absolute; bottom:0.8rem; left:50%; transform:translateX(-50%); display:flex; gap:0.3rem; z-index:10; background:var(--bg-card); padding:0.3rem 0.5rem; border-radius:var(--radius-lg); border:1px solid var(--border); box-shadow:var(--shadow-md); }
+
+        .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.88); z-index:1000; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(6px); animation:fadeIn 0.2s ease-out; }
+        .modal-overlay.hidden { display:none; }
+        .modal-box { background:var(--bg-secondary); border:1px solid var(--border-active); border-radius:var(--radius-lg); padding:1.2rem; max-width:460px; width:90%; max-height:80vh; overflow-y:auto; box-shadow:var(--shadow-md); }
+        .modal-box h3 { font-family:var(--font-display); margin-bottom:0.6rem; }
+        .card-detail-emoji { font-size:3rem; text-align:center; margin:0.4rem 0; }
+
+        .lootbox-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.9); z-index:1001; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(10px); }
+        .lootbox-overlay.hidden { display:none; }
+        .lootbox-reveal { text-align:center; }
+        .lootbox-chest-anim { font-size:6rem; cursor:pointer; user-select:none; filter:drop-shadow(0 0 40px rgba(201,160,80,0.8)); }
+        .lootbox-chest-anim.shaking { animation:chestShake 0.5s ease-in-out 3; }
+        .lootbox-chest-anim.opening { animation:chestBurst 0.6s ease-out forwards; }
+        .lootbox-card-reveal { margin-top:1rem; animation:cardAppear 0.6s ease-out 0.25s both; }
+        @keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
+        @keyframes chestShake { 0%,100%{transform:rotate(0) scale(1);} 25%{transform:rotate(-6deg) scale(1.08);} 75%{transform:rotate(6deg) scale(1.08);} }
+        @keyframes chestBurst { 0%{transform:scale(1);opacity:1;} 30%{transform:scale(1.6);opacity:1;} 100%{transform:scale(0);opacity:0;} }
+        @keyframes cardAppear { 0%{opacity:0;transform:scale(0.2) rotateY(120deg) translateY(40px);} 70%{opacity:1;transform:scale(1.08) rotateY(-5deg) translateY(-5px);} 100%{transform:scale(1) rotateY(0) translateY(0);} }
+
+        .toast { position:fixed; bottom:1.2rem; left:50%; transform:translateX(-50%); background:var(--bg-card); border:1px solid var(--accent); color:var(--accent-glow); padding:0.5rem 1.2rem; border-radius:var(--radius-md); font-weight:500; font-size:0.75rem; z-index:3000; animation:toastIn 0.4s ease-out,toastOut 0.4s ease-in 3s forwards; box-shadow:var(--shadow-gold); pointer-events:none; }
+        @keyframes toastIn { from{opacity:0;transform:translateX(-50%) translateY(20px);} to{opacity:1;transform:translateX(-50%) translateY(0);} }
+        @keyframes toastOut { from{opacity:1;} to{opacity:0;transform:translateX(-50%) translateY(-10px);} }
+        .empty-state { color:var(--text-muted); font-size:0.75rem; text-align:center; padding:1.2rem; font-style:italic; }
+        .sync-status {
+            position:fixed; top:0.5rem; right:0.5rem; font-size:0.6rem; padding:0.2rem 0.5rem;
+            border-radius:var(--radius-sm); background:var(--bg-card); z-index:100;
+        }
+        .sync-status.synced { border:1px solid var(--success); color:var(--success); }
+        .sync-status.syncing { border:1px solid var(--accent); color:var(--accent); animation:pulse 1s infinite; }
+        @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.5;} }
+
+        .welcome-screen {
+            position:fixed; inset:0; background:var(--bg-primary); z-index:9999;
+            display:flex; flex-direction:column; align-items:center; justify-content:center;
+            text-align:center; padding:2rem;
+        }
+        .welcome-screen.hidden { display:none; }
+        .welcome-logo { font-size:5rem; animation:float 3s ease-in-out infinite; }
+        @keyframes float { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-15px);} }
+        .welcome-title { font-family:var(--font-display); font-size:1.8rem; font-weight:800; color:var(--accent); margin:1rem 0; }
+        .welcome-subtitle { color:var(--text-secondary); margin-bottom:2rem; font-size:0.9rem; }
+    </style>
+</head>
+<body>
+
+    <!-- Экран приветствия -->
+    <div class="welcome-screen" id="welcomeScreen">
+        <div class="welcome-logo">🕸️</div>
+        <div class="welcome-title">VBrusentsev</div>
+        <div class="welcome-subtitle">Survival Quest — Мультивселенная ждёт</div>
+        <button class="btn btn-accent" id="startBtn" style="font-size:1rem;padding:0.8rem 2.5rem;">⚡ Начать</button>
+        <p style="margin-top:1rem;font-size:0.7rem;color:var(--text-muted);">Загрузка данных...</p>
+    </div>
+
+    <div class="sync-status syncing" id="syncStatus">⚡ Синхронизация...</div>
+
+    <div class="app-container" id="app" style="display:none;">
+        <div class="header">
+            <div class="header-left"><span class="header-logo">🕸️</span><span class="header-title">VBRUSENTSEV</span></div>
+            <div class="header-controls">
+                <div class="hp-module">
+                    <span style="font-size:0.6rem;text-transform:uppercase;letter-spacing:0.04em;color:var(--text-muted);">HP</span>
+                    <div class="hp-bar-outer"><div class="hp-bar-inner" id="hpBar" style="width:100%"></div></div>
+                    <span class="hp-value" id="hpValue">100/100</span>
+                </div>
+                <span class="badge badge-accent" id="activeBadge">Нет карты</span>
+                <span class="badge badge-accent" id="streakBadge">🔥 0 дн</span>
+                <button class="btn btn-icon" id="themeToggle" title="Тема">🌓</button>
+                <button class="btn btn-sm" id="exportBtn">📥</button>
+                <button class="btn btn-sm" id="importBtn">📤</button>
+            </div>
+        </div>
+
+        <div class="main-grid">
+            <div class="panel">
+                <div class="panel-header"><span class="panel-title">📋 Цели</span><span class="panel-counter" id="goalCounter">0</span></div>
+                <div class="tab-row" id="tabRow">
+                    <button class="tab-btn active" data-tab="all">Все</button>
+                    <button class="tab-btn" data-tab="long-term">Долгие</button>
+                    <button class="tab-btn" data-tab="mid-term">Средние</button>
+                    <button class="tab-btn" data-tab="daily">День</button>
+                    <button class="tab-btn" data-tab="recurring">Цикл</button>
+                </div>
+                <div class="goal-input-row">
+                    <input type="text" id="goalInput" placeholder="Новая цель...">
+                    <select id="goalTypeSelect">
+                        <option value="daily">Ежедневная</option><option value="mid-term">Средняя</option>
+                        <option value="long-term">Долгосрочная</option><option value="recurring">Цикличная</option>
+                    </select>
+                    <select id="goalTalentSelect">
+                        <option value="">Без ветки</option><option value="study">📚 Учёба</option>
+                        <option value="sport">💪 Спорт</option><option value="health">❤️ Здоровье</option>
+                        <option value="finance">💰 Финансы</option><option value="discipline">⏳ Дисциплина</option>
+                    </select>
+                    <button class="btn btn-accent btn-sm" id="addGoalBtn">+</button>
+                </div>
+                <div class="goal-list" id="goalList"></div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-header">
+                    <span class="panel-title">🎴 Коллекция <span id="cardCounter">0/100</span></span>
+                    <button class="btn btn-sm" id="openMindMapBtn">🗺️ Mind Map</button>
+                </div>
+                <div class="lootbox-area">
+                    <div class="lootbox-icon-wrapper" id="lootboxTrigger">🎁</div>
+                    <div>
+                        <div style="font-family:var(--font-mono);font-size:1.1rem;font-weight:700;color:var(--accent);" id="lootboxCount">0</div>
+                        <div style="font-size:0.55rem;color:var(--text-muted);text-transform:uppercase;">Веб-кэшей</div>
+                    </div>
+                    <div style="flex:1;text-align:right;font-size:0.6rem;color:var(--text-muted);">Pity: <span id="pityCounter">0</span></div>
+                </div>
+                <div class="card-filter-row">
+                    <input type="text" id="cardSearch" placeholder="Поиск...">
+                    <select id="cardRarityFilter">
+                        <option value="all">Все</option><option value="Common">Обычная</option>
+                        <option value="Rare">Редкая</option><option value="Epic">Эпическая</option>
+                        <option value="Legendary">Легендарная</option><option value="Champion">Чемпионская</option>
+                    </select>
+                </div>
+                <div class="cards-grid" id="cardsGrid"></div>
+            </div>
+
+            <div class="panel full-width">
+                <div class="panel-header">
+                    <span class="panel-title">🌟 Древо Талантов</span>
+                    <span class="panel-counter" id="talentPointsDisplay">Очков: 0</span>
+                    <span class="badge badge-accent" id="anchorDisplay">⚓ Якоря: 0</span>
+                </div>
+                <div class="talent-grid" id="talentGrid"></div>
+            </div>
+
+            <div class="panel full-width">
+                <div class="panel-header"><span class="panel-title">🏆 Достижения</span><span class="panel-counter" id="achCounter">0/15</span></div>
+                <div class="achievements-grid" id="achievementsGrid"></div>
+            </div>
+
+            <div class="panel full-width">
+                <div class="panel-header"><span class="panel-title">📊 Рейтинг</span><button class="btn btn-sm" id="addBotBtn">+ Бот</button></div>
+                <div style="overflow-x:auto;"><table class="rating-table" id="ratingTable"><thead><tr><th>#</th><th>Игрок</th><th>Ур.</th><th>Карт</th><th>Стрик</th><th>Счёт</th></tr></thead><tbody id="ratingBody"></tbody></table></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay hidden" id="cardDetailModal"><div class="modal-box" id="cardDetailContent"></div></div>
+
+    <div class="lootbox-overlay hidden" id="lootboxOverlay">
+        <div class="lootbox-reveal">
+            <div class="lootbox-chest-anim" id="lootboxChest">🎁</div>
+            <div class="lootbox-card-reveal hidden" id="lootboxCardReveal"></div>
+            <div style="margin-top:1rem;color:var(--text-muted);font-size:0.65rem;" class="hidden" id="lootboxHint">Кликни чтобы закрыть</div>
+        </div>
+    </div>
+
+    <div class="modal-overlay hidden" id="destroyModal">
+        <div class="modal-box" style="text-align:center;">
+            <h3 style="color:var(--danger-bright);">💀 База Разрушена</h3>
+            <p style="color:var(--text-secondary);">Случайная карта уничтожена:</p>
+            <div style="font-size:2.5rem;" id="destroyedEmoji"></div>
+            <p style="font-weight:600;" id="destroyedName"></p>
+            <p style="font-size:0.65rem;color:var(--text-muted);">HP восстановлено до 50</p>
+            <button class="btn" id="closeDestroyModal" style="margin-top:0.6rem;">Принять</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay hidden" id="mindMapModal">
+        <div class="modal-box" style="max-width:90vw;width:900px;height:80vh;padding:0.4rem;">
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:0.4rem 0.8rem;">
+                <span style="font-weight:600;">🗺️ Mind Map Целей</span>
+                <button class="btn btn-sm" id="closeMindMapBtn">✕</button>
+            </div>
+            <div class="mindmap-container" id="mindmapContainer">
+                <canvas class="mindmap-canvas" id="mindmapCanvas"></canvas>
+                <div class="mindmap-toolbar">
+                    <button class="btn btn-sm" id="addMindNodeBtn">+ Узел</button>
+                    <button class="btn btn-sm" id="deleteMindNodeBtn">🗑</button>
+                    <button class="btn btn-sm" id="resetMindViewBtn">↺</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script>
+// ╔══════════════════════════════════════════════════╗
+// ║     VBRUSENTSEV SURVIVAL QUEST                 ║
+// ║     Telegram Mini App + Cloud Sync             ║
+// ║     Полная версия — все системы активны        ║
+// ╚══════════════════════════════════════════════════╝
+
+// ── TELEGRAM INIT ──
+const tg = window.Telegram?.WebApp;
+const isTelegram = !!tg;
+const API_URL = 'https://vb-tg-aaa.azurewebsites.net';
+
+let TELEGRAM_ID = 'demo_' + Math.random().toString(36).slice(2,8);
+let TELEGRAM_USERNAME = 'Выживший';
+let TELEGRAM_FIRST_NAME = 'VBrusentsev';
+
+if (isTelegram) {
+    tg.ready();
+    tg.expand();
+    tg.enableClosingConfirmation();
+    if (tg.initDataUnsafe?.user) {
+        TELEGRAM_ID = tg.initDataUnsafe.user.id.toString();
+        TELEGRAM_USERNAME = tg.initDataUnsafe.user.username || 'Выживший';
+        TELEGRAM_FIRST_NAME = tg.initDataUnsafe.user.first_name || 'VBrusentsev';
+    }
+    document.documentElement.style.setProperty('--bg-primary', tg.themeParams.bg_color || '#0a0a0f');
+    document.documentElement.style.setProperty('--bg-secondary', tg.themeParams.secondary_bg_color || '#12121a');
+    document.documentElement.style.setProperty('--text-primary', tg.themeParams.text_color || '#e8e8f0');
+    document.documentElement.style.setProperty('--accent', tg.themeParams.button_color || '#c9a050');
+    tg.BackButton.onClick(() => {
+        document.querySelectorAll('.modal-overlay').forEach(m => m.classList.add('hidden'));
+        document.getElementById('lootboxOverlay')?.classList.add('hidden');
+    });
+}
+
+// ── CLOUD SYNC ──
+class CloudSync {
+    static async save(gameData) {
+        const statusEl = document.getElementById('syncStatus');
+        if (statusEl) { statusEl.className = 'sync-status syncing'; statusEl.textContent = '⚡ Синхронизация...'; }
+        try {
+            await fetch(API_URL + '/api/sync', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({game_data: {...gameData, telegram_id: TELEGRAM_ID, username: TELEGRAM_USERNAME, first_name: TELEGRAM_FIRST_NAME}})
+            });
+            if (statusEl) { statusEl.className = 'sync-status synced'; statusEl.textContent = '☁️ Облако'; }
+        } catch(e) {
+            if (statusEl) { statusEl.className = 'sync-status'; statusEl.textContent = '📱 Локально'; }
+        }
+    }
+    static async load() {
+        try {
+            const r = await fetch(API_URL + '/api/load/' + TELEGRAM_ID);
+            const d = await r.json();
+            if (d.status === 'ok' && d.game_data) return d.game_data;
+        } catch(e) {}
+        return null;
+    }
+    static async getLeaderboard() {
+        try {
+            const r = await fetch(API_URL + '/api/leaderboard?limit=50');
+            return await r.json();
+        } catch(e) { return []; }
+    }
+}
+
+// ── SOUND ENGINE ──
+class SoundEngine {
+    constructor() { this.ctx = null; this.enabled = true; }
+    init() { if (!this.ctx) this.ctx = new(window.AudioContext || window.webkitAudioContext)(); }
+    play(type) {
+        if (!this.enabled) return;
+        try {
+            this.init();
+            const now = this.ctx.currentTime;
+            const g = this.ctx.createGain();
+            g.connect(this.ctx.destination);
+            g.gain.setValueAtTime(0.1, now);
+            if (type === 'lootbox') {
+                const o = this.ctx.createOscillator(); o.type='sine';
+                o.frequency.setValueAtTime(300,now); o.frequency.linearRampToValueAtTime(900,now+0.3);
+                o.connect(g); o.start(now); o.stop(now+0.35);
+            } else if (type === 'legendary') {
+                const o = this.ctx.createOscillator(); o.type='triangle';
+                o.frequency.setValueAtTime(200,now); o.frequency.linearRampToValueAtTime(1200,now+0.5);
+                o.connect(g); g.gain.setValueAtTime(0.16,now); o.start(now); o.stop(now+0.6);
+            } else if (type === 'upgrade') {
+                const o = this.ctx.createOscillator(); o.type='square';
+                o.frequency.setValueAtTime(500,now); o.frequency.setValueAtTime(700,now+0.08); o.frequency.setValueAtTime(900,now+0.16);
+                o.connect(g); g.gain.setValueAtTime(0.05,now); o.start(now); o.stop(now+0.25);
+            } else if (type === 'destroy') {
+                const o = this.ctx.createOscillator(); o.type='sawtooth';
+                o.frequency.setValueAtTime(800,now); o.frequency.linearRampToValueAtTime(100,now+0.5);
+                o.connect(g); o.start(now); o.stop(now+0.55);
+            } else if (type === 'streak') {
+                const o = this.ctx.createOscillator(); o.type='sine';
+                o.frequency.setValueAtTime(200,now); o.frequency.linearRampToValueAtTime(600,now+1);
+                o.connect(g); g.gain.setValueAtTime(0.13,now); g.gain.linearRampToValueAtTime(0,now+1.2);
+                o.start(now); o.stop(now+1.3);
+            }
+        } catch(e) {}
+    }
+}
+const sound = new SoundEngine();
+
+// ── CARD GENERATOR ──
+const CARD_BASES = {
+    Common: ['Искровой Пряд','Теневой Ползун','Нитяной Страж','Паутинный Гонец','Серебряный Ткач','Лунный Прядильщик','Каменный Паук','Ветряной Ловец','Пыльный Скиталец','Медный Узел','Шёлковый Бегун','Ночной Шептун','Железный Каркас','Ржавый Смотритель','Травяной Плетун','Дымчатый Краб','Зеркальный След','Песчаный Вьюн','Глиняный Страж','Ледяной Жнец','Угольный Ткач','Соляной Сборщик','Восковой Отшельник','Снежный Следопыт','Мшистый Хранитель','Грозовой Вестник','Речной Прядильщик','Горный Скороход','Полевой Дозорный','Лесной Шорох','Болотный Огонёк','Степной Вихрь','Пещерный Эхо','Вулканический Пепел','Коралловый Риф','Жемчужный Ныряльщик','Янтарный Свет','Опаловый Сон','Хрустальный Шёпот','Гранитный Кулак'],
+    Rare: ['Астральный Прядильщик','Кровавый Узел','Призрачная Нить','Огненный Ткач','Водный Ловец','Электрический Паук','Кислотный След','Магнитный Узел','Ядовитый Пряд','Звуковой Резонатор','Тепловой Мираж','Гравитационный Сгиб','Плазменный Сгусток','Квантовый Узелок','Теневой Архитектор','Световой Импульс','Вихревой Сборщик','Кристальный Ловчий','Туманный Прядильщик','Радужный Ткач','Штормовой Глаз','Лавовый Сердечник','Морозный Орбиталь','Песчаный Демон','Грозовая Дуга'],
+    Epic: ['Хроно-Ткач','Нексус-Паук','Бездонный Узел','Космический Прядильщик','Измеренческий Шептун','Фазовый Паук','Энтропийный Жнец','Сингулярный Узел','Галактический След','Парадоксальный Ткач','Квантовый Архитектор','Нейтринный Ловец','Тёмная Материя','Сверхновая Нить','Горизонт Событий','Антиматериальный Сгусток','Реликтовый Фон','Гиперпространственный Бегун'],
+    Legendary: ['Архитектор Сетей','Властелин Нитей','Хранитель Мультивселенной','Ткач Реальности','Повелитель Измерений','Страж Времени','Король Паутины','Мастер Узлов','Оракул Прядения','Верховный Прядильщик','Создатель Миров','Хранитель Врат'],
+    Champion: ['Абсолютный Ткач','Божество Паутины','Первозданный Узел','Вселенский Пряд','Конечная Нить']
+};
+const ADJECTIVES = {
+    Common: ['Верный','Тихий','Быстрый','Крепкий','Ловкий','Мудрый','Смелый','Зоркий'],
+    Rare: ['Пламенный','Ледяной','Грозовой','Теневой','Сияющий','Неистовый','Глубинный','Высокий'],
+    Epic: ['Космический','Вневременной','Бездонный','Фазовый','Энтропийный','Сингулярный','Галактический','Нейтринный'],
+    Legendary: ['Верховный','Абсолютный','Бесконечный','Древний','Нерушимый','Всевластный'],
+    Champion: ['Первозданный','Вселенский','Божественный','Конечный','Изначальный']
+};
+const EMOJIS = {
+    Common: ['🕸️','🕷️','🧵','🪡','🪢','🐜','🕸','🪰'],
+    Rare: ['⚡','🔥','❄️','💧','🌪️','🧲','☣️','🎵'],
+    Epic: ['🌌','⏳','🕳️','🔮','🌠','💫','⚛️','🔬'],
+    Legendary: ['👑','🏰','🔱','⚜️','🌟','💎'],
+    Champion: ['🔷','🔶','💠','🌀','☀️']
+};
+const SPECIALS = {
+    Rare: ['Условный: +5 Урона если активна ветка "Учёба"','Условный: +5 Урона если активна ветка "Спорт"','Условный: +3 HP за каждую цель сегодня'],
+    Epic: ['Аура: все Обычные карты +2 HP','Проклятый: +20 Урона, -8 HP','Аура: все Редкие карты +3 Урона'],
+    Legendary: ['Растущий: +1 ко всем статам за 10 целей','Растущий: +2 HP за каждый уровень карты','Условный: удвоение бонуса при стрике >7'],
+    Champion: ['Эхо: дублирует бонус активной карты','Уника: +5% ко всем статам за ранг Дисциплины','Уника: иммунитет к уничтожению (один раз)']
+};
+function generateCard(rarity) {
+    const names = CARD_BASES[rarity], adjs = ADJECTIVES[rarity];
+    const base = names[Math.floor(Math.random()*names.length)];
+    const adj = adjs[Math.floor(Math.random()*adjs.length)];
+    const fullName = rarity==='Common' ? base : adj+' '+base;
+    let hpB=0, dmgB=0, spdB=0;
+    switch(rarity) {
+        case 'Common': hpB=Math.floor(Math.random()*6)+2; dmgB=Math.floor(Math.random()*4)+1; spdB=Math.floor(Math.random()*3); break;
+        case 'Rare': hpB=Math.floor(Math.random()*10)+5; dmgB=Math.floor(Math.random()*8)+3; spdB=Math.floor(Math.random()*6)+2; break;
+        case 'Epic': hpB=Math.floor(Math.random()*18)+10; dmgB=Math.floor(Math.random()*14)+6; spdB=Math.floor(Math.random()*10)+5; break;
+        case 'Legendary': hpB=Math.floor(Math.random()*28)+18; dmgB=Math.floor(Math.random()*22)+12; spdB=Math.floor(Math.random()*16)+8; break;
+        case 'Champion': hpB=Math.floor(Math.random()*40)+30; dmgB=Math.floor(Math.random()*32)+20; spdB=Math.floor(Math.random()*24)+14; break;
+    }
+    const specArr = SPECIALS[rarity];
+    const special = specArr ? specArr[Math.floor(Math.random()*specArr.length)] : null;
+    const emojiArr = EMOJIS[rarity];
+    const emoji = emojiArr[Math.floor(Math.random()*emojiArr.length)];
+    return {id:'c_'+Math.random().toString(36).slice(2,10),name:fullName,rarity,emoji,hpBonus:hpB,dmgBonus:dmgB,speedBonus:spdB,special,level:1};
+}
+
+// ── TALENTS ──
+const TALENT_TREES = {
+    study:{id:'study',name:'Учёба',icon:'📚',color:'var(--talent-study)',nodes:[
+        {level:1,name:'Ученик',xpRequired:3,bonus:'Скорость +3'},{level:2,name:'Студент',xpRequired:8,bonus:'Скорость +5, HP +3'},
+        {level:3,name:'Исследователь',xpRequired:16,bonus:'Скорость +10, Урон +3'},{level:4,name:'Эксперт',xpRequired:28,bonus:'Скорость +15, HP +5, Урон +5'},
+        {level:5,name:'Мудрец',xpRequired:45,bonus:'Скорость +20, HP +10, Урон +8'}
+    ]},
+    sport:{id:'sport',name:'Спорт',icon:'💪',color:'var(--talent-sport)',nodes:[
+        {level:1,name:'Новичок',xpRequired:3,bonus:'Урон +3'},{level:2,name:'Атлет',xpRequired:8,bonus:'Урон +5, HP +3'},
+        {level:3,name:'Силач',xpRequired:16,bonus:'Урон +10, HP +5'},{level:4,name:'Мастер',xpRequired:28,bonus:'Урон +15, HP +8, Скорость +3'},
+        {level:5,name:'Чемпион',xpRequired:45,bonus:'Урон +22, HP +12, Скорость +5'}
+    ]},
+    health:{id:'health',name:'Здоровье',icon:'❤️',color:'var(--talent-health)',nodes:[
+        {level:1,name:'Заботящийся',xpRequired:3,bonus:'HP +5'},{level:2,name:'Здоровяк',xpRequired:8,bonus:'HP +8, Урон +2'},
+        {level:3,name:'Витальный',xpRequired:16,bonus:'HP +15, Скорость +3'},{level:4,name:'Несокрушимый',xpRequired:28,bonus:'HP +22, Урон +5, Скорость +5'},
+        {level:5,name:'Бессмертный',xpRequired:45,bonus:'HP +35, Урон +8, Скорость +8'}
+    ]},
+    finance:{id:'finance',name:'Финансы',icon:'💰',color:'var(--talent-finance)',nodes:[
+        {level:1,name:'Эконом',xpRequired:3,bonus:'HP +2, Урон +1'},{level:2,name:'Инвестор',xpRequired:8,bonus:'HP +5, Урон +3'},
+        {level:3,name:'Бизнесмен',xpRequired:16,bonus:'HP +8, Урон +5, Скорость +3'},{level:4,name:'Магнат',xpRequired:28,bonus:'HP +15, Урон +10, Скорость +5'},
+        {level:5,name:'Империя',xpRequired:45,bonus:'HP +25, Урон +15, Скорость +8'}
+    ]},
+    discipline:{id:'discipline',name:'Дисциплина',icon:'⏳',color:'var(--talent-discipline)',nodes:[
+        {level:1,name:'Стальной Фундамент',xpRequired:7,bonus:'Все статы +2'},{level:2,name:'Несокрушимая Воля',xpRequired:14,bonus:'Все статы +4'},
+        {level:3,name:'Мастер Привычек',xpRequired:30,bonus:'Все статы +7'},{level:4,name:'Хранитель Обета',xpRequired:50,bonus:'Все статы +10'},
+        {level:5,name:'Легендарная Дисциплина',xpRequired:100,bonus:'Все статы +15'},{level:6,name:'Абсолютный Контроль',xpRequired:200,bonus:'Все статы +20'},
+        {level:7,name:'Властелин Времени',xpRequired:365,bonus:'Все статы +30'}
+    ]}
+};
+
+// ── ACHIEVEMENTS ──
+const ACHIEVEMENTS = [
+    {id:'first_goal',icon:'🎯',name:'Первый Шаг',desc:'Выполнить первую цель',check:s=>s.totalCompleted>=1},
+    {id:'ten_goals',icon:'📋',name:'Деловой',desc:'Выполнить 10 целей',check:s=>s.totalCompleted>=10},
+    {id:'fifty_goals',icon:'🔥',name:'Продуктивный',desc:'Выполнить 50 целей',check:s=>s.totalCompleted>=50},
+    {id:'collector_10',icon:'🎴',name:'Коллекционер',desc:'Собрать 10 карт',check:s=>s.collectionLen>=10},
+    {id:'collector_50',icon:'🃏',name:'Охотник',desc:'Собрать 50 карт',check:s=>s.collectionLen>=50},
+    {id:'collector_all',icon:'👑',name:'Полная Коллекция',desc:'Собрать все 100 карт',check:s=>s.collectionLen>=100},
+    {id:'streak_7',icon:'📅',name:'Неделя',desc:'Стрик 7 дней',check:s=>s.streak>=7},
+    {id:'streak_30',icon:'🗓️',name:'Месяц',desc:'Стрик 30 дней',check:s=>s.streak>=30},
+    {id:'streak_100',icon:'💯',name:'Сотня',desc:'Стрик 100 дней',check:s=>s.streak>=100},
+    {id:'phoenix',icon:'🔥',name:'Феникс',desc:'Пережить уничтожение базы',check:s=>s.timesDestroyed>=1},
+    {id:'phoenix_3',icon:'🦅',name:'Восставший',desc:'Пережить 3 уничтожения',check:s=>s.timesDestroyed>=3},
+    {id:'legendary',icon:'🌟',name:'Легенда',desc:'Получить легендарную карту',check:s=>s.hasLegendary},
+    {id:'champion',icon:'💠',name:'Чемпион',desc:'Получить чемпионскую карту',check:s=>s.hasChampion},
+    {id:'talent_max',icon:'⭐',name:'Мастер Талантов',desc:'Все ветки до 5 уровня',check:s=>s.allTalentsMaxed},
+    {id:'mindmap',icon:'🗺️',name:'Архитектор',desc:'10 узлов в Mind Map',check:s=>s.mindmapNodes>=10}
+];
+
+// ── GAME STATE ──
+class GameState {
+    constructor() {
+        this.KEY = 'vbrusentsev_save_v1';
+        this.data = null;
+    }
+    async init() {
+        if (isTelegram) {
+            const cd = await CloudSync.load();
+            if (cd) { this.data = cd; localStorage.setItem(this.KEY, JSON.stringify(cd)); return; }
+        }
+        try {
+            const raw = localStorage.getItem(this.KEY);
+            if (raw) { this.data = JSON.parse(raw); return; }
+        } catch(e) {}
+        this.data = this.defaultData();
+    }
+    defaultData() {
+        return {
+            hp:100, goals:[], collection:[], activeCardId:null, lootboxes:0, pityCounter:0,
+            talents:{study:{xp:0,unlockedLevel:0},sport:{xp:0,unlockedLevel:0},health:{xp:0,unlockedLevel:0},finance:{xp:0,unlockedLevel:0},discipline:{xp:0,unlockedLevel:0}},
+            talentPoints:0, streak:0, lastActiveDate:new Date().toDateString(), anchors:2,
+            totalCompleted:0, timesDestroyed:0, unlockedAchievements:[], mindmapNodes:[], ratingBots:[]
+        };
+    }
+    save() {
+        localStorage.setItem(this.KEY, JSON.stringify(this.data));
+        if (isTelegram) CloudSync.save(this.data);
+    }
+    addGoal(text, type, talentCat) {
+        const now = Date.now();
+        const goal = {id:'g_'+Math.random().toString(36).slice(2,9),text,type,talentCategory:talentCat||null,createdAt:now,completed:false,deadline:now+86400000};
+        this.data.goals.push(goal); this.save(); return goal;
+    }
+    completeGoal(id) {
+        const g = this.data.goals.find(x=>x.id===id);
+        if (!g || g.completed) return {success:false};
+        g.completed = true; this.data.lootboxes++; this.data.totalCompleted++;
+        let msg = null;
+        if (g.talentCategory && TALENT_TREES[g.talentCategory]) msg = this.addTalentXP(g.talentCategory,1);
+        if (g.type==='recurring') {
+            const now = Date.now();
+            this.data.goals.push({id:'g_'+Math.random().toString(36).slice(2,9),text:g.text,type:'recurring',talentCategory:g.talentCategory,createdAt:now,completed:false,deadline:now+86400000});
+        }
+        this.updateStreak(); this.checkAchievements(); this.save();
+        return {success:true, talentUpMessage:msg};
+    }
+    deleteGoal(id) { this.data.goals = this.data.goals.filter(x=>x.id!==id); this.save(); }
+    addTalentXP(cat, amount) {
+        if (!this.data.talents[cat]) return null;
+        this.data.talents[cat].xp += amount;
+        const tree = TALENT_TREES[cat], talent = this.data.talents[cat];
+        for (const node of tree.nodes) {
+            if (node.level > talent.unlockedLevel && talent.xp >= node.xpRequired) {
+                talent.unlockedLevel = node.level; this.data.talentPoints++;
+                sound.play('upgrade');
+                return '🌟 '+tree.icon+' '+tree.name+': "'+node.name+'" разблокирован!';
+            }
+        }
+        return null;
+    }
+    getTalentBonuses() {
+        let b = {hp:0,dmg:0,speed:0};
+        for (const [cat,talent] of Object.entries(this.data.talents)) {
+            const tree = TALENT_TREES[cat]; if (!tree) continue;
+            for (const node of tree.nodes) {
+                if (node.level <= talent.unlockedLevel) {
+                    const hpM=node.bonus.match(/HP\s*\+\s*(\d+)/), dmgM=node.bonus.match(/Урон\s*\+\s*(\d+)/), spdM=node.bonus.match(/Скорость\s*\+\s*(\d+)/), allM=node.bonus.match(/Все статы\s*\+\s*(\d+)/);
+                    if(hpM) b.hp += parseInt(hpM[1]); if(dmgM) b.dmg += parseInt(dmgM[1]); if(spdM) b.speed += parseInt(spdM[1]);
+                    if(allM) { const v=parseInt(allM[1]); b.hp+=v; b.dmg+=v; b.speed+=v; }
+                }
+            }
+        }
+        return b;
+    }
+    updateStreak() {
+        const today = new Date().toDateString();
+        if (this.data.lastActiveDate !== today) {
+            const yesterday = new Date(Date.now()-86400000).toDateString();
+            if (this.data.lastActiveDate === yesterday) { this.data.streak++; }
+            else if (this.data.lastActiveDate !== today) {
+                if (this.data.anchors > 0 && this.data.streak >= 7) { this.data.anchors--; setTimeout(()=>showToast('⚓ Якорь спасения сохранил стрик!'),100); }
+                else { this.data.streak = 1; }
+            }
+            this.data.lastActiveDate = today;
+        }
+        const dTree = TALENT_TREES['discipline'], dTalent = this.data.talents['discipline'];
+        for (const node of dTree.nodes) {
+            if (node.level > dTalent.unlockedLevel && this.data.streak >= node.xpRequired) {
+                dTalent.unlockedLevel = node.level; dTalent.xp = node.xpRequired; this.data.talentPoints++;
+                sound.play('streak'); setTimeout(()=>showToast('⏳ Дисциплина: "'+node.name+'" за стрик '+this.data.streak+' дней!'),200);
+            }
+        }
+    }
+    addCard(card) {
+        const existing = this.data.collection.find(c=>c.name===card.name);
+        if (existing) { existing.level = Math.min(5, existing.level+1); sound.play('upgrade'); return {duplicated:true, card:existing}; }
+        this.data.collection.push({...card, level:1});
+        return {duplicated:false, card:this.data.collection[this.data.collection.length-1]};
+    }
+    setActiveCard(id) { this.data.activeCardId = id; this.save(); }
+    getCardBonuses() {
+        if (!this.data.activeCardId) return {hp:0,dmg:0,speed:0};
+        const c = this.data.collection.find(x=>x.id===this.data.activeCardId);
+        if (!c) return {hp:0,dmg:0,speed:0};
+        const mult = 1 + (c.level-1)*0.2;
+        return {hp:Math.floor(c.hpBonus*mult), dmg:Math.floor(c.dmgBonus*mult), speed:Math.floor(c.speedBonus*mult)};
+    }
+    getMaxHp() { return 100 + this.getCardBonuses().hp + this.getTalentBonuses().hp; }
+    applyDamage(amount) {
+        this.data.hp = Math.max(0, this.data.hp - amount); this.save();
+        if (this.data.hp <= 0) return this.punish();
+        return null;
+    }
+    punish() {
+        if (this.data.collection.length===0) { this.data.hp=50; this.save(); return null; }
+        const idx = Math.floor(Math.random()*this.data.collection.length);
+        const removed = this.data.collection[idx];
+        this.data.collection.splice(idx,1);
+        if (this.data.activeCardId===removed.id) this.data.activeCardId=null;
+        this.data.hp=50; this.data.timesDestroyed++;
+        sound.play('destroy'); this.checkAchievements(); this.save();
+        return removed;
+    }
+    checkAchievements() {
+        const state = {
+            totalCompleted:this.data.totalCompleted, collectionLen:this.data.collection.length,
+            streak:this.data.streak, timesDestroyed:this.data.timesDestroyed,
+            hasLegendary:this.data.collection.some(c=>c.rarity==='Legendary'),
+            hasChampion:this.data.collection.some(c=>c.rarity==='Champion'),
+            allTalentsMaxed:Object.values(this.data.talents).every(t=>t.unlockedLevel>=5),
+            mindmapNodes:this.data.mindmapNodes.length
+        };
+        for (const ach of ACHIEVEMENTS) {
+            if (!this.data.unlockedAchievements.includes(ach.id) && ach.check(state)) {
+                this.data.unlockedAchievements.push(ach.id);
+                setTimeout(()=>showToast('🏆 Достижение: "'+ach.name+'" разблокировано!'),300);
+                sound.play('upgrade');
+            }
+        }
+    }
+    getScore() {
+        const talentSum = Object.values(this.data.talents).reduce((s,t)=>s+t.unlockedLevel,0);
+        return talentSum*10 + this.data.collection.length*5 + this.data.streak*2;
+    }
+}
+
+// ── LOOTBOX ENGINE ──
+class LootBoxEngine {
+    static open(game) {
+        let roll = Math.random()*100;
+        game.data.pityCounter++;
+        if (game.data.pityCounter >= 30) { game.data.pityCounter = 0; return generateCard('Champion'); }
+        if (game.data.pityCounter >= 10) roll *= 0.7;
+        let rarity;
+        if (roll<50) rarity='Common'; else if (roll<78) rarity='Rare'; else if (roll<92) rarity='Epic'; else if (roll<98) rarity='Legendary'; else rarity='Champion';
+        if (rarity==='Legendary'||rarity==='Champion') game.data.pityCounter=0;
+        return generateCard(rarity);
+    }
+}
+
+// ── TOAST ──
+function showToast(msg) {
+    const old = document.querySelector('.toast'); if (old) old.remove();
+    const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg;
+    document.body.appendChild(t); setTimeout(()=>t.remove(), 3500);
+}
+
+// ── UI MANAGER ──
+class UIManager {
+    constructor(game) {
+        this.game = game;
+        this.tab = 'all'; this.editingId = null; this.cardFilter = 'all'; this.cardSearch = '';
+        this.pendingCard = null; this.selectedMindNode = null; this.mindDragging = null;
+        this.mindPan = { offsetX:0, offsetY:0, scale:1, dragging:false, startX:0, startY:0, startOffX:0, startOffY:0 };
+        this.cacheDOM(); this.bindEvents(); this.render();
+    }
+    cacheDOM() {
+        this.hpBar=document.getElementById('hpBar'); this.hpValue=document.getElementById('hpValue');
+        this.activeBadge=document.getElementById('activeBadge'); this.streakBadge=document.getElementById('streakBadge');
+        this.goalList=document.getElementById('goalList'); this.goalCounter=document.getElementById('goalCounter');
+        this.cardsGrid=document.getElementById('cardsGrid'); this.cardCounter=document.getElementById('cardCounter');
+        this.lootboxCount=document.getElementById('lootboxCount'); this.pityCounter=document.getElementById('pityCounter');
+        this.talentGrid=document.getElementById('talentGrid'); this.talentPointsDisplay=document.getElementById('talentPointsDisplay');
+        this.anchorDisplay=document.getElementById('anchorDisplay'); this.achievementsGrid=document.getElementById('achievementsGrid');
+        this.achCounter=document.getElementById('achCounter'); this.ratingBody=document.getElementById('ratingBody');
+        this.lootboxOverlay=document.getElementById('lootboxOverlay'); this.lootboxChest=document.getElementById('lootboxChest');
+        this.lootboxCardReveal=document.getElementById('lootboxCardReveal'); this.lootboxHint=document.getElementById('lootboxHint');
+        this.cardDetailModal=document.getElementById('cardDetailModal'); this.cardDetailContent=document.getElementById('cardDetailContent');
+        this.destroyModal=document.getElementById('destroyModal'); this.mindMapModal=document.getElementById('mindMapModal');
+        this.mindmapCanvas=document.getElementById('mindmapCanvas'); this.mindmapContainer=document.getElementById('mindmapContainer');
+    }
+    bindEvents() {
+        document.getElementById('startBtn').addEventListener('click', ()=>this.startApp());
+        document.getElementById('addGoalBtn').addEventListener('click',()=>this.addGoal());
+        document.getElementById('goalInput').addEventListener('keydown',e=>{if(e.key==='Enter')this.addGoal();});
+        document.getElementById('tabRow').addEventListener('click',e=>{
+            if(e.target.classList.contains('tab-btn')) {
+                this.tab=e.target.dataset.tab;
+                document.querySelectorAll('#tabRow .tab-btn').forEach(b=>b.classList.remove('active'));
+                e.target.classList.add('active'); this.renderGoals();
+            }
+        });
+        document.getElementById('lootboxTrigger').addEventListener('click',()=>this.openLootbox());
+        this.lootboxOverlay.addEventListener('click',e=>{if(e.target===this.lootboxOverlay||!this.lootboxHint.classList.contains('hidden'))this.closeLootbox();});
+        this.lootboxChest.addEventListener('click',e=>{e.stopPropagation();if(!this.lootboxChest.classList.contains('opening')&&this.pendingCard)this.revealCard();});
+        document.getElementById('closeDestroyModal').addEventListener('click',()=>this.destroyModal.classList.add('hidden'));
+        this.cardDetailModal.addEventListener('click',e=>{if(e.target===this.cardDetailModal)this.cardDetailModal.classList.add('hidden');});
+        document.getElementById('cardSearch').addEventListener('input',e=>{this.cardSearch=e.target.value.toLowerCase();this.renderCards();});
+        document.getElementById('cardRarityFilter').addEventListener('change',e=>{this.cardFilter=e.target.value;this.renderCards();});
+        document.getElementById('themeToggle').addEventListener('click',()=>{
+            const html=document.documentElement;
+            html.setAttribute('data-theme',html.getAttribute('data-theme')==='dark'?'light':'dark');
+        });
+        document.getElementById('exportBtn').addEventListener('click',()=>this.exportData());
+        document.getElementById('importBtn').addEventListener('click',()=>this.importData());
+        document.getElementById('openMindMapBtn').addEventListener('click',()=>this.openMindMap());
+        document.getElementById('closeMindMapBtn').addEventListener('click',()=>this.mindMapModal.classList.add('hidden'));
+        document.getElementById('addMindNodeBtn').addEventListener('click',()=>this.addMindNode());
+        document.getElementById('deleteMindNodeBtn').addEventListener('click',()=>this.deleteMindNode());
+        document.getElementById('resetMindViewBtn').addEventListener('click',()=>this.resetMindView());
+        document.getElementById('addBotBtn').addEventListener('click',()=>this.addBot());
+        this.mindmapCanvas.addEventListener('mousedown',e=>this.mindMouseDown(e));
+        this.mindmapCanvas.addEventListener('mousemove',e=>this.mindMouseMove(e));
+        this.mindmapCanvas.addEventListener('mouseup',()=>this.mindMouseUp());
+        this.mindmapCanvas.addEventListener('wheel',e=>{e.preventDefault();this.mindPan.scale=Math.max(0.3,Math.min(3,this.mindPan.scale-e.deltaY*0.001));this.drawMindMap();});
+        this.mindmapCanvas.addEventListener('touchstart',e=>this.mindTouchStart(e),{passive:false});
+        this.mindmapCanvas.addEventListener('touchmove',e=>this.mindTouchMove(e),{passive:false});
+        this.mindmapCanvas.addEventListener('touchend',()=>this.mindMouseUp());
+    }
+    async startApp() {
+        document.getElementById('welcomeScreen').classList.add('hidden');
+        document.getElementById('app').style.display = '';
+        await this.game.init();
+        if (isTelegram) {
+            const lb = await CloudSync.getLeaderboard();
+            if (lb.length > 0) {
+                this.game.data.ratingBots = lb.map(e=>({name:e.username,score:e.score,cards:e.cards_count,streak:e.streak,talentSum:e.talent_level,isYou:e.telegram_id===TELEGRAM_ID}));
+            }
+        }
+        this.render();
+    }
+    render() { this.renderHP(); this.renderGoals(); this.renderCards(); this.renderLootbox(); this.renderActiveBadge(); this.renderTalents(); this.renderAchievements(); this.renderRating(); this.renderStreakBadge(); this.renderAnchors(); }
+    renderHP() { const max=this.game.getMaxHp(),cur=this.game.data.hp,pct=Math.max(0,(cur/max)*100); this.hpValue.textContent=cur+'/'+max; this.hpBar.style.width=pct+'%'; this.hpBar.classList.toggle('danger',pct<30); }
+    renderStreakBadge() { this.streakBadge.textContent='🔥 '+this.game.data.streak+' дн'; }
+    renderAnchors() { this.anchorDisplay.textContent='⚓ Якоря: '+this.game.data.anchors; }
+    renderGoals() {
+        const goals=this.game.data.goals.filter(g=>this.tab==='all'||g.type===this.tab);
+        this.goalCounter.textContent=goals.length; this.goalList.innerHTML='';
+        if(!goals.length){this.goalList.innerHTML='<div class="empty-state">Нет целей</div>';return;}
+        const labels={'long-term':'Долгая','mid-term':'Средняя','daily':'День','recurring':'Цикл'};
+        goals.forEach(g=>{
+            const item=document.createElement('div');
+            item.className='goal-item'+(g.completed?' completed':'');
+            if(this.editingId===g.id) {
+                item.innerHTML='<div class="edit-inline"><input value="'+this.esc(g.text)+'" id="ei_'+g.id+'"><button class="btn btn-sm btn-accent" data-save="'+g.id+'">✓</button><button class="btn btn-sm" data-cancel="'+g.id+'">✕</button></div>';
+            } else {
+                const tl=g.talentCategory&&TALENT_TREES[g.talentCategory]?TALENT_TREES[g.talentCategory]:null;
+                item.innerHTML='<div class="goal-checkbox'+(g.completed?' checked':'')+'" data-toggle="'+g.id+'"></div><div class="goal-content"><div class="goal-text">'+this.esc(g.text)+'</div><div class="goal-meta"><span class="goal-tag '+g.type+'">'+labels[g.type]+'</span>'+(tl?'<span class="goal-talent-tag '+tl.id+'">'+tl.icon+' '+tl.name+'</span>':'')+'</div></div><div class="goal-actions"><button class="goal-btn" data-edit="'+g.id+'">✎</button><button class="goal-btn delete" data-del="'+g.id+'">✕</button></div>';
+            }
+            this.goalList.appendChild(item);
+        });
+        this.goalList.querySelectorAll('[data-toggle]').forEach(b=>b.addEventListener('click',()=>{const r=this.game.completeGoal(b.dataset.toggle);if(r.talentUpMessage)showToast(r.talentUpMessage);this.render();}));
+        this.goalList.querySelectorAll('[data-edit]').forEach(b=>b.addEventListener('click',()=>{this.editingId=b.dataset.edit;this.renderGoals();setTimeout(()=>{const i=document.getElementById('ei_'+b.dataset.edit);if(i)i.focus();},50);}));
+        this.goalList.querySelectorAll('[data-del]').forEach(b=>b.addEventListener('click',()=>{this.game.deleteGoal(b.dataset.del);this.render();}));
+        this.goalList.querySelectorAll('[data-save]').forEach(b=>b.addEventListener('click',()=>{const i=document.getElementById('ei_'+b.dataset.save);if(i&&i.value.trim()){const g=this.game.data.goals.find(x=>x.id===b.dataset.save);if(g)g.text=i.value.trim();this.game.save();}this.editingId=null;this.render();}));
+        this.goalList.querySelectorAll('[data-cancel]').forEach(b=>b.addEventListener('click',()=>{this.editingId=null;this.render();}));
+    }
+    renderCards() {
+        let cards=this.game.data.collection;
+        if(this.cardFilter!=='all') cards=cards.filter(c=>c.rarity===this.cardFilter);
+        if(this.cardSearch) cards=cards.filter(c=>c.name.toLowerCase().includes(this.cardSearch));
+        this.cardCounter.textContent=this.game.data.collection.length+'/100'; this.cardsGrid.innerHTML='';
+        if(!cards.length){this.cardsGrid.innerHTML='<div class="empty-state">Нет карт</div>';return;}
+        cards.forEach(c=>{
+            const div=document.createElement('div');
+            div.className='card-mini rarity-'+c.rarity.toLowerCase()+(this.game.data.activeCardId===c.id?' active':'');
+            div.innerHTML='<div class="card-emoji">'+c.emoji+'</div><div class="card-name">'+c.name+'</div>'+(c.level>1?'<div class="card-level">Ур.'+c.level+'</div>':'');
+            div.addEventListener('click',()=>this.showCardDetail(c));
+            this.cardsGrid.appendChild(div);
+        });
+    }
+    showCardDetail(card) {
+        const isActive=this.game.data.activeCardId===card.id;
+        const colorMap={Common:'#b0b0b8',Rare:'#c89050',Epic:'#9b40d0',Legendary:'#e0b030',Champion:'#ff4080'};
+        this.cardDetailContent.innerHTML='<h3>'+card.emoji+' '+card.name+'</h3><div style="border:2px solid '+colorMap[card.rarity]+';padding:1rem;border-radius:var(--radius-lg);text-align:center;"><div class="card-detail-emoji">'+card.emoji+'</div><p style="font-weight:600;">'+card.rarity+'</p><p>HP +'+card.hpBonus+' | Урон +'+card.dmgBonus+' | Скорость +'+card.speedBonus+'</p><p>Уровень: '+card.level+'</p>'+(card.special?'<p style="color:var(--accent);font-size:0.7rem;">✨ '+card.special+'</p>':'')+'</div><div style="margin-top:0.8rem;display:flex;gap:0.4rem;"><button class="btn btn-accent btn-sm" id="activateCardBtn">'+(isActive?'✅ Активна':'Активировать')+'</button><button class="btn btn-sm" id="closeCardDetail">Закрыть</button></div>';
+        document.getElementById('activateCardBtn').addEventListener('click',()=>{this.game.setActiveCard(card.id);this.render();this.cardDetailModal.classList.add('hidden');});
+        document.getElementById('closeCardDetail').addEventListener('click',()=>this.cardDetailModal.classList.add('hidden'));
+        this.cardDetailModal.classList.remove('hidden');
+    }
+    renderLootbox() { this.lootboxCount.textContent=this.game.data.lootboxes; this.pityCounter.textContent=this.game.data.pityCounter; }
+    renderActiveBadge() {
+        const cb=this.game.getCardBonuses(), tb=this.game.getTalentBonuses();
+        const parts=[];
+        if(this.game.data.activeCardId){const c=this.game.data.collection.find(x=>x.id===this.game.data.activeCardId);if(c)parts.push(c.emoji+' HP+'+cb.hp+' D+'+cb.dmg+' S+'+cb.speed);}
+        if(tb.hp||tb.dmg||tb.speed) parts.push('🌟 HP+'+tb.hp+' D+'+tb.dmg+' S+'+tb.speed);
+        this.activeBadge.textContent=parts.join(' | ')||'Нет карты';
+    }
+    renderTalents() {
+        this.talentPointsDisplay.textContent='Очков: '+this.game.data.talentPoints; this.talentGrid.innerHTML='';
+        for(const [cat,tree] of Object.entries(TALENT_TREES)) {
+            const talent=this.game.data.talents[cat]; const div=document.createElement('div'); div.className='talent-tree';
+            const nextNode=tree.nodes.find(n=>n.level===talent.unlockedLevel+1);
+            const xpNext=nextNode?nextNode.xpRequired:(talent.xp||1);
+            const xpPct=nextNode?Math.min(100,(talent.xp/xpNext)*100):100;
+            div.innerHTML='<div class="talent-tree-header"><span>'+tree.icon+'</span><span>'+tree.name+'</span><span class="talent-level">Ур.'+talent.unlockedLevel+'</span></div><div class="talent-xp-bar"><div class="talent-xp-fill" style="width:'+xpPct+'%;background:'+tree.color+';"></div></div><div class="talent-nodes">'+tree.nodes.map(n=>{let cls='locked';if(n.level<talent.unlockedLevel)cls='unlocked';if(n.level===talent.unlockedLevel)cls='current';return '<div class="talent-node '+cls+'"><div class="talent-node-dot" style="background:'+tree.color+';"></div><div><strong>'+n.name+'</strong><div style="font-size:0.55rem;color:var(--accent);">'+n.bonus+'</div></div></div>';}).join('')+'</div>';
+            this.talentGrid.appendChild(div);
+        }
+    }
+    renderAchievements() {
+        const earned=this.game.data.unlockedAchievements;
+        this.achCounter.textContent=earned.length+'/'+ACHIEVEMENTS.length;
+        this.achievementsGrid.innerHTML=ACHIEVEMENTS.map(a=>'<div class="achievement-card '+(earned.includes(a.id)?'earned':'locked')+'"><span class="achievement-icon">'+(earned.includes(a.id)?a.icon:'🔒')+'</span><div><strong>'+a.name+'</strong><div style="font-size:0.55rem;color:var(--text-muted);">'+a.desc+'</div></div></div>').join('');
+    }
+    renderRating() {
+        const you={name:TELEGRAM_FIRST_NAME||'Вы',score:this.game.getScore(),cards:this.game.data.collection.length,streak:this.game.data.streak,talentSum:Object.values(this.game.data.talents).reduce((s,t)=>s+t.unlockedLevel,0),isYou:true};
+        let bots=this.game.data.ratingBots;
+        if(!bots.length) { for(let i=0;i<5;i++) bots.push({name:'Выживший_'+Math.random().toString(36).slice(2,6),score:Math.floor(Math.random()*200)+50,cards:Math.floor(Math.random()*60)+10,streak:Math.floor(Math.random()*40)+1,talentSum:Math.floor(Math.random()*20)+3,isYou:false}); this.game.data.ratingBots=bots; this.game.save(); }
+        const all=[you,...bots].sort((a,b)=>b.score-a.score);
+        this.ratingBody.innerHTML=all.map((p,i)=>'<tr class="'+(p.isYou?'you':'')+'"><td>'+(i+1)+'</td><td>'+p.name+(p.isYou?' ⭐':'')+'</td><td>'+p.talentSum+'</td><td>'+p.cards+'</td><td>🔥'+p.streak+'</td><td>'+p.score+'</td></tr>').join('');
+    }
+    addGoal() { const text=document.getElementById('goalInput').value.trim(); if(!text) return; const type=document.getElementById('goalTypeSelect').value; const talent=document.getElementById('goalTalentSelect').value||null; this.game.addGoal(text,type,talent); document.getElementById('goalInput').value=''; this.render(); }
+    openLootbox() { if(this.game.data.lootboxes<=0){showToast('Нет веб-кэшей!');return;} this.game.data.lootboxes--;this.game.save(); this.pendingCard=LootBoxEngine.open(this.game); const result=this.game.addCard(this.pendingCard); if(result.duplicated) this.pendingCard=result.card; this.lootboxOverlay.classList.remove('hidden'); this.lootboxChest.classList.remove('opening','shaking'); this.lootboxCardReveal.classList.add('hidden'); this.lootboxHint.classList.add('hidden'); this.lootboxChest.textContent='🎁'; void this.lootboxChest.offsetWidth; this.lootboxChest.classList.add('shaking'); sound.play('lootbox'); }
+    revealCard() {
+        if(!this.pendingCard) return; const c=this.pendingCard;
+        this.lootboxChest.classList.remove('shaking'); this.lootboxChest.classList.add('opening');
+        if(c.rarity==='Legendary'||c.rarity==='Champion') sound.play('legendary');
+        const colorMap={Common:'#b0b0b8',Rare:'#c89050',Epic:'#9b40d0',Legendary:'#e0b030',Champion:'#ff4080'};
+        this.lootboxCardReveal.innerHTML='<div style="background:var(--bg-card);padding:1.5rem;border-radius:var(--radius-lg);border:2px solid '+colorMap[c.rarity]+';"><div class="card-detail-emoji">'+c.emoji+'</div><p style="font-weight:700;font-size:1.1rem;">'+c.name+'</p><p style="color:'+colorMap[c.rarity]+';font-weight:600;">'+c.rarity+(c.level>1?' (Ур.'+c.level+')':'')+'</p><p>HP +'+c.hpBonus+' | Урон +'+c.dmgBonus+' | Скорость +'+c.speedBonus+'</p>'+(c.special?'<p style="color:var(--accent);font-size:0.65rem;">✨ '+c.special+'</p>':'')+'</div>';
+        this.lootboxCardReveal.classList.remove('hidden'); this.lootboxHint.classList.remove('hidden');
+        this.pendingCard=null; this.game.checkAchievements(); this.game.save(); this.render();
+    }
+    closeLootbox() { this.lootboxOverlay.classList.add('hidden'); this.pendingCard=null; this.render(); }
+    showDestroyModal(card) { if(!card) return; document.getElementById('destroyedEmoji').textContent=card.emoji; document.getElementById('destroyedName').textContent=card.name; this.destroyModal.classList.remove('hidden'); }
+    exportData() { const blob=new Blob([JSON.stringify(this.game.data,null,2)],{type:'application/json'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url;a.download='vbrusentsev_backup.json';a.click();URL.revokeObjectURL(url);showToast('📥 Данные экспортированы'); }
+    importData() { const input=document.createElement('input');input.type='file';input.accept='.json';input.addEventListener('change',e=>{const file=e.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=ev=>{try{const data=JSON.parse(ev.target.result);this.game.data=data;this.game.save();this.render();showToast('📤 Данные импортированы');}catch(err){showToast('❌ Ошибка файла');}};reader.readAsText(file);});input.click(); }
+    addBot() { const bot={name:'Выживший_'+Math.random().toString(36).slice(2,6),score:Math.floor(Math.random()*250)+80,cards:Math.floor(Math.random()*80)+15,streak:Math.floor(Math.random()*60)+1,talentSum:Math.floor(Math.random()*25)+5,isYou:false}; this.game.data.ratingBots.push(bot);this.game.save();this.renderRating(); }
+    openMindMap() { this.mindMapModal.classList.remove('hidden'); setTimeout(()=>this.drawMindMap(),100); }
+    drawMindMap() {
+        const canvas=this.mindmapCanvas; const container=this.mindmapContainer;
+        canvas.width=container.clientWidth; canvas.height=container.clientHeight;
+        const ctx=canvas.getContext('2d'); ctx.clearRect(0,0,canvas.width,canvas.height);
+        const cx=canvas.width/2+this.mindPan.offsetX; const cy=canvas.height/2+this.mindPan.offsetY; const scale=this.mindPan.scale;
+        ctx.save(); ctx.translate(cx,cy); ctx.scale(scale,scale);
+        const nodes=this.game.data.mindmapNodes;
+        ctx.strokeStyle='#555'; ctx.lineWidth=1;
+        nodes.forEach(n=>{if(n.parentId){const p=nodes.find(x=>x.id===n.parentId);if(p){ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(n.x,n.y);ctx.stroke();}}});
+        nodes.forEach(n=>{const r=n.radius||25;ctx.beginPath();ctx.arc(n.x,n.y,r,0,Math.PI*2);ctx.fillStyle=this.selectedMindNode===n.id?'#c9a050':'#2a2a35';ctx.fill();ctx.strokeStyle=this.selectedMindNode===n.id?'#e0c070':'#555';ctx.lineWidth=2;ctx.stroke();ctx.fillStyle='#e8e8f0';ctx.font='10px Inter,sans-serif';ctx.textAlign='center';ctx.fillText(n.label||'Узел',n.x,n.y+3);});
+        ctx.restore();
+    }
+    addMindNode() { const label=prompt('Название узла:'); if(!label) return; const id='mn_'+Math.random().toString(36).slice(2,7); this.game.data.mindmapNodes.push({id,label,x:(Math.random()-0.5)*300,y:(Math.random()-0.5)*200,radius:25,parentId:this.selectedMindNode||null}); this.game.save(); this.drawMindMap(); }
+    deleteMindNode() { if(!this.selectedMindNode) return; this.game.data.mindmapNodes=this.game.data.mindmapNodes.filter(n=>n.id!==this.selectedMindNode&&n.parentId!==this.selectedMindNode); this.selectedMindNode=null; this.game.save(); this.drawMindMap(); }
+    resetMindView() { this.mindPan={offsetX:0,offsetY:0,scale:1,dragging:false,startX:0,startY:0,startOffX:0,startOffY:0}; this.drawMindMap(); }
+    getMindNodeAt(mx,my) { const canvas=this.mindmapCanvas; const cx=canvas.width/2+this.mindPan.offsetX; const cy=canvas.height/2+this.mindPan.offsetY; const scale=this.mindPan.scale; for(const n of[...this.game.data.mindmapNodes].reverse()) { const sx=cx+n.x*scale, sy=cy+n.y*scale; if(Math.sqrt((mx-sx)**2+(my-sy)**2)<n.radius*scale) return n; } return null; }
+    mindMouseDown(e) { const rect=this.mindmapCanvas.getBoundingClientRect(); const mx=e.clientX-rect.left, my=e.clientY-rect.top; const node=this.getMindNodeAt(mx,my); if(node) { this.selectedMindNode=node.id; this.mindDragging={node,startX:mx,startY:my,origX:node.x,origY:node.y}; } else { this.mindPan.dragging=true; this.mindPan.startX=mx;this.mindPan.startY=my; this.mindPan.startOffX=this.mindPan.offsetX;this.mindPan.startOffY=this.mindPan.offsetY; } this.drawMindMap(); }
+    mindMouseMove(e) { const rect=this.mindmapCanvas.getBoundingClientRect(); const mx=e.clientX-rect.left, my=e.clientY-rect.top; if(this.mindDragging) { this.mindDragging.node.x=this.mindDragging.origX+(mx-this.mindDragging.startX)/this.mindPan.scale; this.mindDragging.node.y=this.mindDragging.origY+(my-this.mindDragging.startY)/this.mindPan.scale; this.game.save();this.drawMindMap(); } else if(this.mindPan.dragging) { this.mindPan.offsetX=this.mindPan.startOffX+(mx-this.mindPan.startX); this.mindPan.offsetY=this.mindPan.startOffY+(my-this.mindPan.startY); this.drawMindMap(); } }
+    mindMouseUp() { this.mindDragging=null;this.mindPan.dragging=false; }
+    mindTouchStart(e) { if(e.touches.length===1){const t=e.touches[0];this.mindMouseDown({clientX:t.clientX,clientY:t.clientY});} }
+    mindTouchMove(e) { if(e.touches.length===1&&(this.mindDragging||this.mindPan.dragging)){e.preventDefault();const t=e.touches[0];this.mindMouseMove({clientX:t.clientX,clientY:t.clientY});} }
+    esc(s) { const d=document.createElement('div');d.textContent=s;return d.innerHTML; }
+}
+
+// ── ИНИЦИАЛИЗАЦИЯ ──
+const game = new GameState();
+const ui = new UIManager(game);
+
+function checkOverdue() {
+    if (!game.data) return;
+    const now = Date.now();
+    let dmg = 0;
+    game.data.goals.forEach(g => { if (!g.completed && now > g.deadline) dmg += 20; });
+    if (dmg > 0) {
+        const removed = game.applyDamage(dmg);
+        ui.render();
+        if (removed) ui.showDestroyModal(removed);
+    }
+}
+
+setInterval(() => { checkOverdue(); if (game.data) ui.render(); }, 60000);
+document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') { checkOverdue(); if (game.data) ui.render(); }
+});
+
+console.log('🕸️ VBrusentsev Survival Quest — Готов к выживанию');
+console.log('   Telegram: ' + (isTelegram ? 'ДА' : 'НЕТ (браузер)'));
+console.log('   ID: ' + TELEGRAM_ID);
+</script>
+</body>
+</html>
